@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ciao! – Italian taskusanasto</title>
+<meta name="theme-color" content="#0f5132">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ciao!">
+<!--PWA-->
+<style>
+:root{--bg:#faf8f3;--card:#fff;--ink:#1d1d1b;--mut:#6b6b66;--line:#e7e3d9;--g:#0f7a46;--r:#c8312b;--acc:#0f5132;--chip:#efece4}
+@media (prefers-color-scheme:dark){:root{--bg:#131412;--card:#1d1f1c;--ink:#eeece6;--mut:#9a9a92;--line:#2e302c;--chip:#262824;--acc:#5fd39a}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(env(safe-area-inset-top) + 10px) 14px 8px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.flag{width:26px;height:18px;border-radius:3px;background:linear-gradient(90deg,#0f7a46 33%,#fff 33% 66%,#c8312b 66%);box-shadow:0 0 0 1px var(--line)}
+.brand h1{font-size:19px;margin:0;font-weight:700;letter-spacing:-.01em}
+.brand small{color:var(--mut);margin-left:auto;font-size:12px}
+nav{display:flex;gap:6px}
+nav button{flex:1;border:0;background:var(--chip);color:var(--ink);padding:6px 2px 7px;border-radius:10px;font:inherit;font-size:12px;font-weight:600;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:1px}nav button span{font-size:17px;line-height:1.2}
+nav button.on{background:var(--acc);color:var(--bg)}
+main{padding:12px 14px calc(env(safe-area-inset-bottom) + 30px);max-width:720px;margin:0 auto}
+.search{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:16px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:10px 0 4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 11px;border-radius:999px;font:inherit;font-size:14px;white-space:nowrap}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.opts{display:flex;gap:14px;align-items:center;color:var(--mut);font-size:13px;margin:6px 2px 4px;flex-wrap:wrap}
+.opts label{display:flex;gap:5px;align-items:center}
+h3.cat{margin:18px 2px 6px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
+.row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:6px 0}
+.row .t{flex:1;min-width:0}
+.it{font-size:18px;font-weight:650}
+.fi{color:var(--ink);opacity:.85;font-size:15px}
+.es{color:var(--mut);font-size:13px;margin-top:1px}
+.es::before{content:"ES · "}
+.spk{flex:none;border:0;background:var(--chip);color:var(--ink);width:38px;height:38px;border-radius:50%;font-size:17px}
+.star{flex:none;border:0;background:none;font-size:20px;color:var(--mut);padding:4px}
+.star.on{color:#e0a400}
+.empty{color:var(--mut);text-align:center;padding:40px 10px}
+/* cards */
+.setup{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+.setup select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.seg{display:flex;gap:6px;margin-top:8px}
+.seg button{flex:1;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:9px;border-radius:10px;font:inherit;font-size:14px}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.prog{color:var(--mut);font-size:13px;margin:4px 2px 8px;display:flex;justify-content:space-between}
+.bar{height:5px;background:var(--chip);border-radius:3px;overflow:hidden;margin-bottom:12px}
+.bar i{display:block;height:100%;background:var(--g);width:0;transition:width .3s}
+.flash{background:var(--card);border:1px solid var(--line);border-radius:18px;min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px 18px;user-select:text;-webkit-user-select:text;cursor:pointer;position:relative}
+.flash .q{font-size:27px;font-weight:700;line-height:1.25}
+.flash .hint{color:var(--mut);font-size:13px;margin-top:14px}
+.flash .a{margin-top:16px;padding-top:16px;border-top:1px dashed var(--line);width:100%}
+.flash .a .big{font-size:23px;font-weight:650;color:var(--acc)}
+.flash .a .es{font-size:15px;margin-top:6px}
+.flash .spk{position:absolute;top:10px;right:10px}
+.flash .tag{position:absolute;top:12px;left:14px;font-size:12px;color:var(--mut)}
+.btns{display:flex;gap:10px;margin-top:12px}
+.btns button{flex:1;border:0;padding:15px;border-radius:14px;font:inherit;font-weight:700;font-size:16px;color:#fff}
+.no{background:var(--r)}.yes{background:var(--g)}
+.btns button:disabled{opacity:.35}
+.small{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 12px;border-radius:10px;font:inherit;font-size:14px}
+.guide h2{font-size:18px;margin:22px 0 8px}
+.guide ul{padding-left:18px;margin:0}
+.guide li{margin:7px 0}
+.guide i{color:var(--acc);font-style:normal;font-weight:600}
+.note{background:var(--chip);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--mut);margin-top:22px}
+.done{font-size:40px}
+.art{border-collapse:collapse;width:100%;font-size:14px;margin:4px 0 8px}
+.art th,.art td{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left}
+.art th{color:var(--mut);font-weight:600;font-size:12px}
+.art td{white-space:nowrap}.art td:first-child{color:var(--mut);font-size:12px;white-space:normal}
+.note-l{color:var(--mut);font-size:13px;margin-top:2px;font-style:italic}
+textarea,.inp{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:16px;resize:vertical}
+.inp{margin-top:8px}
+.prim{width:100%;margin-top:8px;border:0;background:var(--acc);color:var(--bg);padding:12px;border-radius:10px;font:inherit;font-weight:700}
+.sec{width:100%;margin-top:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:11px;border-radius:10px;font:inherit;font-weight:600}
+.del{flex:none;border:0;background:none;color:var(--mut);font-size:18px;padding:6px}
+.pend{display:flex;align-items:center;gap:8px;background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:10px 12px;margin:6px 0}
+.pend .t{flex:1}
+.msg{font-size:13px;margin-top:8px;color:var(--acc);min-height:1em}
+.step{font-size:13px;color:var(--mut);margin:0 0 6px}
+.toks{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 4px}
+.tok{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 11px;border-radius:10px;font:inherit;font-size:19px;font-weight:600}
+.tok.on{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+.tok.miss{border-style:dashed;color:var(--mut)}
+.look{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px}
+.look h4{margin:0 0 6px;font-size:22px;display:flex;align-items:center;gap:8px}
+.look h4 .spk{margin-left:auto}
+.look .lbl{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin:10px 0 3px}
+.hit{padding:6px 0;border-bottom:1px solid var(--line)}.hit:last-child{border:0}
+.hit b{font-weight:650}.hit .fi{font-size:14px}
+.rowbtn{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.rowbtn>*{flex:1}
+a.sec{display:block;text-align:center;text-decoration:none;box-sizing:border-box}
+.parts{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px;font-size:13px}
+.parts span b{color:var(--acc)}.parts i{color:var(--mut)}
+[hidden]{display:none!important}
+.vb{flex:none;border:0;background:var(--chip);color:var(--ink);min-width:34px;height:34px;border-radius:17px;font:inherit;font-weight:700;font-size:15px;padding:0 8px}
+.vb.has{background:var(--acc);color:var(--bg)}
+.row.open{border-radius:12px 12px 0 0;margin-bottom:0;border-bottom-style:dashed}
+.vpanel{background:var(--card);border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;padding:4px 12px 12px;margin:0 0 6px}
+.vpanel textarea{margin-top:6px}.vpanel .lbl,.edit .lbl{display:block;font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin:10px 0 3px}
+.spk.sm{width:28px;height:28px;font-size:13px;vertical-align:middle}
+.sub{color:var(--mut);font-size:13px;margin-top:1px}
+.ctag{font-size:11px;color:var(--mut);margin-bottom:1px}
+.toks.sm .tok{font-size:16px;padding:6px 9px}
+.donex{opacity:.7}.edit textarea{margin:0}
+.opts span{margin-left:auto}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="flag"></div><h1>Ciao!</h1><small id="cnt"></small></div>
+  <nav>
+    <button data-v="words" class="on"><span>📖</span>Sanasto</button>
+    <button data-v="search"><span>🔍</span>Haku</button>
+    <button data-v="split"><span>✂️</span>Pilko</button>
+    <button data-v="cards"><span>🃏</span>Kortit</button>
+    <button data-v="notes"><span>📝</span>Muistio</button>
+    <button data-v="guide"><span>🧭</span>Opas</button>
+  </nav>
+</header>
+<main id="main"><section id="v-words"></section><section id="v-search" hidden></section><section id="v-split" hidden></section><section id="v-cards" hidden></section><section id="v-notes" hidden></section><section id="v-guide" hidden></section></main>
+<!--DATA-->
+<script>
+(function(){
+"use strict";
+var store={get:function(k,d){try{var v=localStorage.getItem("ciao:"+k);return v?JSON.parse(v):d}catch(e){return d}},
+  set:function(k,v){try{localStorage.setItem("ciao:"+k,JSON.stringify(v))}catch(e){}}};
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function norm(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[’`]/g,"'")}
+function nid(){return"n"+Date.now().toString(36)+Math.floor(Math.random()*1e3)}
+
+// ---------- data ----------
+var BASE=CATS.concat(window.DICT||[]),cats=[],ALL=[],BYKEY={},VAR={},FORMS=window.FORMS||{},SEENIT={};
+function stripArt(x){return x.replace(/^(il|lo|la|i|gli|le|un|uno|una) /,"").replace(/^(l'|un')/,"")}
+BASE.forEach(function(c){var dict=c.id.indexOf("d-")===0;c.items=c.d.trim().split("\n").map(function(l){var p=l.split("|");
+  var w={fi:(p[1]!==undefined&&dict?p[1]:p[0]||"").trim(),it:((dict?p[0]:p[1])||"").trim(),es:(p[2]||"").trim(),cat:c.id};
+  var nk=w.it.toLowerCase();if(dict&&SEENIT[nk])return null;SEENIT[nk]=1;w.key=c.id+"::"+w.it+"::"+w.fi;return w;}).filter(Boolean);});
+var notes=store.get("notes",[]);
+var OMAT={id:"omat",ico:"📝",name:"Omat ilmaukset",items:[]};
+function rebuild(){
+  OMAT.items=notes.filter(function(n){return n.it}).slice().reverse().map(function(n){return{fi:n.fi||n.text||"",it:n.it,es:n.es||"",note:n.note||"",parts:n.parts,cat:"omat",key:"omat::"+n.id,nid:n.id}});
+  cats=(OMAT.items.length?[OMAT]:[]).concat(BASE);ALL=[];BYKEY={};
+  cats.forEach(function(c){c.items.forEach(function(w){ALL.push(w);BYKEY[w.key]=w})});
+  VAR={};notes.forEach(function(n){if(n.base)(VAR[n.base]=VAR[n.base]||[]).push(n)});
+  document.getElementById("cnt").textContent=ALL.length+" sanaa & fraasia";}
+rebuild();
+var known=store.get("known",{}),stars=store.get("stars",{});
+var D=store.get("drafts",{});function draft(k,v){D[k]=v;store.set("drafts",D)}
+var S={view:null,cat:"all",q:"",more:false,showEs:store.get("showEs",true),cCat:"all",dir:"fi",deck:[],i:0,shown:false,ok:0,tot:0,open:{words:null,search:null},cardSel:-1,edit:null};
+
+// ---------- speech ----------
+var voice=null;
+function pickVoice(){try{voice=speechSynthesis.getVoices().filter(function(v){return/^it/i.test(v.lang)})[0]||null}catch(e){}}
+if("speechSynthesis" in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function speak(t){if(!("speechSynthesis" in window))return;
+  t=String(t).replace(/\([^)]*\)/g,"").replace(/…/g,"").split(" / ")[0].replace(/⚠.*/,"").trim();
+  try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang="it-IT";if(voice)u.voice=voice;u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
+
+// ---------- views: kept alive, state preserved ----------
+var V={},rendered={},scrollPos={},RENDER={};
+["words","search","split","cards","notes","guide"].forEach(function(v){V[v]=document.getElementById("v-"+v)});
+function show(v){if(S.view===v&&rendered[v])return;
+  if(S.view)scrollPos[S.view]=window.scrollY;S.view=v;
+  document.querySelectorAll("nav button").forEach(function(b){b.classList.toggle("on",b.dataset.v===v)});
+  Object.keys(V).forEach(function(k){V[k].hidden=k!==v});
+  if(!rendered[v]){RENDER[v]();rendered[v]=true}
+  window.scrollTo(0,scrollPos[v]||0);
+  if(v==="search"&&!S.q){var q=document.getElementById("q");if(q)q.focus()}}
+function changed(){Object.keys(rendered).forEach(function(k){if(k!==S.view)rendered[k]=false})}
+function rerender(v){RENDER[v]();rendered[v]=true}
+
+// ---------- shared row ----------
+function catOf(id){return cats.filter(function(c){return c.id===id})[0]||{ico:"",name:id}}
+function chips(sel){var ex=[["all","Kaikki"],["star","★ Tähdet"]];
+  return'<div class="chips">'+ex.map(function(x){return'<button class="chip'+(sel===x[0]?" on":"")+'" data-c="'+x[0]+'">'+x[1]+'</button>'}).join("")+
+  cats.map(function(c){return'<button class="chip'+(sel===c.id?" on":"")+'" data-c="'+c.id+'">'+c.ico+" "+c.name+'</button>'}).join("")+'</div>'}
+function catFilter(w,c){if(c==="star")return!!stars[w.key];if(c==="all")return true;return w.cat===c}
+function row(w,ctx){var vs=VAR[w.key]||[],op=S.open[ctx]===w.key;
+  return'<div class="row'+(op?" open":"")+'"><div class="t">'+(ctx==="search"?'<div class="ctag">'+catOf(w.cat).ico+" "+esc(catOf(w.cat).name)+'</div>':"")+
+  '<div class="it">'+esc(w.it)+'</div><div class="fi">'+esc(w.fi)+'</div>'+
+  (S.showEs&&w.es?'<div class="es">'+esc(w.es)+'</div>':"")+(w.note?'<div class="note-l">'+esc(w.note)+'</div>':"")+partsHtml(w.parts)+'</div>'+
+  '<button class="vb'+(vs.length?" has":"")+'" data-var="'+esc(w.key)+'" aria-label="variantit">+'+(vs.length||"")+'</button>'+
+  '<button class="star'+(stars[w.key]?" on":"")+'" data-star="'+esc(w.key)+'" aria-label="tähti">★</button>'+
+  '<button class="spk" data-say="'+esc(w.it)+'" aria-label="kuuntele">🔊</button></div>'+(op?varPanel(w,vs):"")}
+function varPanel(w,vs){var d=D["v:"+w.key]||{fi:w.fi,it:w.it};
+  var h='<div class="vpanel">';
+  if(vs.length)h+='<div class="lbl">Omat variantit</div>'+vs.slice().reverse().map(function(n){
+    return'<div class="hit">'+(n.it?'<b>'+esc(n.it)+'</b> <button class="spk sm" data-say="'+esc(n.it)+'">🔊</button>':'❓ <i>'+esc(n.guess||"odottaa tarkistusta")+'</i>')+
+    '<div class="fi">'+esc(n.fi||n.text)+'</div>'+(n.note?'<div class="note-l">'+esc(n.note)+'</div>':"")+partsHtml(n.parts)+'</div>'}).join("");
+  h+='<div class="lbl">Uusi variantti – muokkaa</div><textarea class="vfi" rows="2" data-vk="'+esc(w.key)+'">'+esc(d.fi)+'</textarea>'+
+    '<textarea class="vit" rows="2" data-vk="'+esc(w.key)+'" placeholder="italiaksi (oma yritys, valinnainen)">'+esc(d.it)+'</textarea>'+
+    '<div class="rowbtn"><button class="prim" data-vsave="'+esc(w.key)+'">＋ Muistioon tarkistettavaksi</button><button class="sec" data-pilko="'+esc(w.key)+'">✂️ Pilko</button></div><div class="msg"></div></div>';
+  return h}
+function saveVariant(k,panel){var w=BYKEY[k];if(!w)return;var fi=panel.querySelector(".vfi").value.trim(),it=panel.querySelector(".vit").value.trim();
+  if(!fi&&!it)return;
+  notes.push({id:nid(),kind:"variantti",base:k,base_it:w.it,base_fi:w.fi,text:fi,fi:fi,guess:it&&it!==w.it?it:"",it:"",es:"",note:""});
+  delete D["v:"+k];store.set("drafts",D);saveNotes();}
+function listClick(ctx){return function(e){var t;
+  if((t=e.target.closest("[data-say]"))){speak(t.dataset.say);return}
+  if((t=e.target.closest("[data-star]"))){toggleStar(t.dataset.star);t.classList.toggle("on");changed();return}
+  if((t=e.target.closest("[data-var]"))){var k=t.dataset.var;S.open[ctx]=S.open[ctx]===k?null:k;relist(ctx);return}
+  if((t=e.target.closest("[data-vsave]"))){saveVariant(t.dataset.vsave,t.closest(".vpanel"));relist(ctx);
+    var p=V[ctx].querySelector(".vpanel .msg");if(p)p.textContent="✓ Lisätty muistioon – lähetä Claudelle tarkistettavaksi Muistio-välilehdeltä.";return}
+  if((t=e.target.closest("[data-pilko]"))){var w=BYKEY[t.dataset.pilko];openSplit(w.it,w.fi);return}
+  if((t=e.target.closest("[data-more]"))){S.more=true;relist(ctx);return}
+  if((t=e.target.closest(".chip"))){S.cat=t.dataset.c;S.more=false;V[ctx].querySelectorAll(".chip").forEach(function(x){x.classList.toggle("on",x===t)});
+    rendered[ctx==="words"?"search":"words"]=false;relist(ctx);if(ctx==="words")window.scrollTo(0,0);return}}}
+function listInput(e){var t=e.target;if(t.dataset&&t.dataset.vk){var p=t.closest(".vpanel");draft("v:"+t.dataset.vk,{fi:p.querySelector(".vfi").value,it:p.querySelector(".vit").value})}}
+function relist(ctx){if(ctx==="words")fillWords();else fillSearch()}
+
+// ---------- sanasto ----------
+RENDER.words=function(){V.words.innerHTML=chips(S.cat)+'<div class="opts"><label><input type="checkbox" class="esT"'+(S.showEs?" checked":"")+'> Näytä espanja</label><span>+ = tee oma variantti</span></div><div class="list"></div>';
+  V.words.querySelector(".esT").onchange=function(e){S.showEs=e.target.checked;store.set("showEs",S.showEs);rendered.search=false;fillWords()};fillWords()};
+function fillWords(){var h="",n=0;
+  cats.forEach(function(c){var it=c.items.filter(function(w){return catFilter(w,S.cat)});
+    if(it.length){n+=it.length;h+='<h3 class="cat">'+c.ico+" "+c.name+" · "+it.length+'</h3>'+it.map(function(w){return row(w,"words")}).join("")}});
+  V.words.querySelector(".list").innerHTML=n?h:'<div class="empty">'+(S.cat==="star"?"Ei tähdellä merkittyjä vielä. Paina ★ sanan vieressä.":"Ei sanoja.")+'</div>'}
+
+// ---------- haku ----------
+function score(w,q){var best=0,multi=q.indexOf(" ")>=0;
+  [[w.it,3],[w.fi,2],[w.es,0]].forEach(function(p){if(!p[0])return;var f=norm(p[0]).replace(/\([^)]*\)/g," ").replace(/\s+/g," ").trim(),s=0;
+    var alts=f.split(/\s*\/\s*|[?!.,…¿¡]+/).map(function(x){return x.trim()}).filter(Boolean);
+    var words=f.split(/[^a-z0-9]+/).filter(Boolean);
+    if(f===q)s=100;else if(stripArt(f)===q)s=98;else if(alts.indexOf(q)>=0||alts.map(stripArt).indexOf(q)>=0)s=90;
+    else if(multi){if(f.indexOf(q)===0)s=60;else if(f.indexOf(q)>0)s=45}
+    else if(words.indexOf(q)>=0)s=words[0]===q?65:55;
+    else if(q.length>=2&&words.some(function(x){return x.indexOf(q)===0}))s=35;
+    else if(q.length>=3&&f.indexOf(q)>=0)s=12;
+    if(s)s+=p[1];if(s>best)best=s});return best}
+RENDER.search=function(){V.search.innerHTML='<input class="search" id="q" type="search" placeholder="Hae suomeksi, italiaksi tai espanjaksi…" value="'+esc(S.q)+'" autocomplete="off">'+chips(S.cat)+'<div class="list"></div>';
+  var q=document.getElementById("q");q.oninput=function(){S.q=q.value;S.more=false;fillSearch()};fillSearch()};
+function fillSearch(){var q=norm(S.q).replace(/\s+/g," ").trim(),el=V.search.querySelector(".list");
+  if(!q){el.innerHTML='<div class="empty">Kirjoita hakusana. Valittu kategoria näytetään ensin, sen alla muut osumat.</div>';return}
+  var res=[];ALL.forEach(function(w){var s=score(w,q);if(s>0)res.push({w:w,s:s})});
+  res.sort(function(a,b){return b.s-a.s||a.w.it.length-b.w.it.length});
+  var h="",lim=S.more?2000:60,sel=S.cat!=="all";
+  var inC=sel?res.filter(function(r){return catFilter(r.w,S.cat)}):[],rest=sel?res.filter(function(r){return!catFilter(r.w,S.cat)}):res;
+  var lbl=S.cat==="star"?"★ Tähdet":catOf(S.cat).ico+" "+catOf(S.cat).name;
+  if(sel)h+='<h3 class="cat">'+esc(lbl)+' · '+inC.length+'</h3>'+(inC.length?inC.map(function(r){return row(r.w,"search")}).join(""):'<div class="empty" style="padding:10px">Ei osumia tässä kategoriassa.</div>');
+  h+='<h3 class="cat">'+(sel?"Kaikki muut":"Tulokset")+' · '+rest.length+'</h3>'+rest.slice(0,lim).map(function(r){return row(r.w,"search")}).join("");
+  if(rest.length>lim)h+='<button class="sec" data-more>Näytä kaikki '+rest.length+'</button>';
+  if(!res.length)h='<div class="empty">Ei osumia. Lisää ilmaus muistioon selvitettäväksi.</div>';
+  el.innerHTML=h}
+
+// ---------- kortit ----------
+function pool(){return ALL.filter(function(w){if(S.cCat==="star")return stars[w.key];if(S.cCat==="weak")return known[w.key]===0;if(S.cCat==="new")return known[w.key]===undefined;
+  return S.cCat==="all"||w.cat===S.cCat})}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function newDeck(){S.deck=shuffle(pool().slice());if(S.deck.length>30&&S.cCat!=="weak")S.deck=S.deck.slice(0,30);S.i=0;S.shown=false;S.ok=0;S.tot=S.deck.length;S.cardSel=-1}
+RENDER.cards=function(){if(!S.deck.length&&!S.tot)newDeck();var el=V.cards;
+  var opts=[["all","Kaikki sekaisin"],["new","Uudet (ei vielä harjoiteltu)"],["weak","Kertaa: en osannut"],["star","★ Tähdet"]].concat(cats.map(function(c){return[c.id,c.ico+" "+c.name]}));
+  var cntKnown=ALL.filter(function(w){return known[w.key]===1}).length;
+  var h='<div class="setup"><select id="cc">'+opts.map(function(o){return'<option value="'+o[0]+'"'+(o[0]===S.cCat?" selected":"")+'>'+o[1]+'</option>'}).join("")+'</select>'+
+    '<div class="seg"><button data-d="fi" class="'+(S.dir==="fi"?"on":"")+'">suomi → italia</button><button data-d="it" class="'+(S.dir==="it"?"on":"")+'">italia → suomi</button></div></div>';
+  var w=S.deck[S.i];
+  h+='<div class="prog"><span>Kierros: '+S.ok+' / '+S.tot+' osattu</span><span>Osattu yht. '+cntKnown+' / '+ALL.length+'</span></div><div class="bar"><i style="width:'+(S.tot?100*S.ok/S.tot:0)+'%"></i></div>';
+  if(!w){el.innerHTML=h+'<div class="flash"><div class="done">'+(S.tot?"🎉":"🤷")+'</div><div class="q" style="font-size:20px">'+(S.tot?"Kierros valmis!":"Tässä valinnassa ei ole kortteja.")+'</div><div class="hint">'+(S.tot?"Bravo!":"Valitse toinen kategoria.")+'</div></div><div class="btns"><button class="yes" id="again">Uusi kierros</button></div>';return}
+  var cat=catOf(w.cat),front=S.dir==="fi"?w.fi:w.it,back=S.dir==="fi"?w.it:w.fi;
+  h+='<div class="flash" id="card"><span class="tag">'+cat.ico+" "+esc(cat.name)+'</span>'+(S.dir==="it"||S.shown?'<button class="spk" data-say="'+esc(w.it)+'">🔊</button>':"")+
+    '<div class="q">'+esc(front)+'</div>'+
+    (S.shown?'<div class="a"><div class="big">'+esc(back)+'</div>'+(w.es?'<div class="es">'+esc(w.es)+'</div>':"")+(w.note?'<div class="note-l">'+esc(w.note)+'</div>':"")+'</div>':'<div class="hint">Napauta nähdäksesi vastauksen</div>')+'</div>';
+  h+='<div class="btns"><button class="no" id="no"'+(S.shown?"":" disabled")+'>✗ Kertaa</button><button class="yes" id="yes"'+(S.shown?"":" disabled")+'>✓ Osasin</button></div>';
+  if(S.shown){var t=toks(w.it);
+    h+='<div class="setup" style="margin-top:12px"><p class="step">Miksi näin? Napauta sanaa:</p><div class="toks sm">'+t.map(function(k,i){return'<button class="tok'+(i===S.cardSel?" on":"")+(isKnown(k)?"":" miss")+'" data-ctk="'+i+'">'+esc(k)+'</button>'}).join("")+'</div>'+
+      (S.cardSel>=0&&t[S.cardSel]?lookHtml(t[S.cardSel],w.it):"")+
+      '<div class="rowbtn"><button class="sec" data-cpilko>✂️ Pilko-näkymään</button><button class="sec" data-csplit>＋ Pilkonta muistioon</button></div><div class="msg"></div></div>'}
+  h+='<div style="display:flex;justify-content:space-between;margin-top:12px"><button class="small" id="shuf">🔀 Sekoita uudelleen</button><button class="small" id="stc">'+(stars[w.key]?"★ Tähdetty":"☆ Tähti")+'</button></div>';
+  el.innerHTML=h};
+V.cards.addEventListener("click",function(e){var t,w=S.deck[S.i];
+  if((t=e.target.closest("[data-say]"))){speak(t.dataset.say);return}
+  if((t=e.target.closest("[data-d]"))){S.dir=t.dataset.d;S.shown=false;S.cardSel=-1;rerender("cards");return}
+  if(e.target.id==="again"||e.target.id==="shuf"){newDeck();rerender("cards");return}
+  if(e.target.closest("#card")){if(String(window.getSelection?window.getSelection():"").trim())return;if(!S.shown){S.shown=true;rerender("cards");if(S.dir==="fi")speak(w.it)}return}
+  if(e.target.id==="yes"){known[w.key]=1;store.set("known",known);S.deck.splice(S.i,1);S.ok++;S.shown=false;S.cardSel=-1;rerender("cards");return}
+  if(e.target.id==="no"){known[w.key]=0;store.set("known",known);var c=S.deck.splice(S.i,1)[0];S.deck.splice(Math.min(S.deck.length,S.i+4),0,c);S.shown=false;S.cardSel=-1;rerender("cards");return}
+  if(e.target.id==="stc"){toggleStar(w.key);changed();rerender("cards");return}
+  if((t=e.target.closest("[data-ctk]"))){S.cardSel=S.cardSel===+t.dataset.ctk?-1:+t.dataset.ctk;rerender("cards");return}
+  if((t=e.target.closest("[data-addw]"))){addWordNote(t.dataset.addw,w.it);t.textContent="✓ Lisätty muistioon";t.disabled=true;return}
+  if(e.target.closest("[data-cpilko]")){openSplit(w.it,w.fi);return}
+  if((t=e.target.closest("[data-csplit]"))){addSentenceNote(w.it,w.fi);t.textContent="✓ Muistiossa";t.disabled=true;return}});
+V.cards.addEventListener("change",function(e){if(e.target.id==="cc"){S.cCat=e.target.value;newDeck();rerender("cards")}});
+function toggleStar(k){if(stars[k])delete stars[k];else stars[k]=1;store.set("stars",stars)}
+
+// ---------- pilko ----------
+var FW={"il":"määräinen artikkeli, m. (the)","lo":"määräinen artikkeli, m. (s+kons., z) / pronomini: sen, häntä","la":"määräinen artikkeli, f. / pronomini: sen, hänet","l'":"määräinen artikkeli vokaalin edellä","i":"määräinen artikkeli, mon. m.","gli":"artikkeli, mon. m. (lo/l' →) / pronomini: hänelle (m.)","le":"artikkeli, mon. f. / pronomini: hänelle (n.), ne",
+"un":"epämääräinen artikkeli, m. (eräs, yksi)","uno":"yksi / epämäär. artikkeli (s+kons., z)","una":"yksi / epämäär. artikkeli, f.","un'":"epämäär. artikkeli f. vokaalin edellä",
+"di":"-n, -sta (omistus, aine; ES de)","a":"-lle, -ssa, -an, kello… (ES a)","da":"-sta, -lta, jonkun luona/luo, alkaen (ES desde/de)","in":"-ssa, -an (maa, tila, kulkuneuvo)","con":"kanssa, -lla (väline)","su":"päällä, -lla, aiheesta","per":"varten, jotta, kautta, ajan (ES para/por)","tra":"välissä, päästä (ajasta)","fra":"välissä, päästä (ajasta)",
+"e":"ja","ed":"ja (vokaalin edellä)","o":"tai","ma":"mutta","che":"että / joka, mikä / mitä? / kuin","non":"ei (verbin edellä)","se":"jos / itse (pronomini)","come":"kuten / miten?","anche":"myös","perché":"koska / miksi?","quando":"kun / milloin?","dove":"missä?","mi":"minulle, minua, itseäni","ti":"sinulle, sinua","ci":"meille, meitä / täällä, sinne (c'è)","c'":"ci = täällä (c'è = on olemassa)","vi":"teille, teitä","si":"itse (refleksiivi) / passiivi: 'sitä tehdään'","ne":"siitä, niitä (ES de ello)",
+"è":"on (essere: hän/se on)","sono":"olen / he ovat (essere)","sei":"olet (essere) / kuusi","siamo":"olemme","siete":"olette","era":"oli (essere, imperf.)","ho":"minulla on (avere) / apuverbi: ho fatto = tein","hai":"sinulla on (avere)","ha":"hänellä on (avere) / apuverbi","abbiamo":"meillä on (avere)","avete":"teillä on","hanno":"heillä on (avere)",
+"del":"di + il (-n / vähän jotain)","dello":"di + lo","della":"di + la","dell'":"di + l'","dei":"di + i","degli":"di + gli","delle":"di + le","al":"a + il","allo":"a + lo","alla":"a + la","all'":"a + l'","ai":"a + i","agli":"a + gli","alle":"a + le","dal":"da + il","dallo":"da + lo","dalla":"da + la","dall'":"da + l'","dai":"da + i","dagli":"da + gli","dalle":"da + le","nel":"in + il","nello":"in + lo","nella":"in + la","nell'":"in + l'","nei":"in + i","negli":"in + gli","nelle":"in + le","sul":"su + il","sulla":"su + la","sull'":"su + l'","sui":"su + i","sulle":"su + le","col":"con + il","coi":"con + i",
+"mio":"minun (m.)","mia":"minun (f.)","miei":"minun (mon. m.)","mie":"minun (mon. f.)","tuo":"sinun (m.)","tua":"sinun (f.)","tuoi":"sinun (mon. m.)","tue":"sinun (mon. f.)","suo":"hänen / Teidän (m.)","sua":"hänen / Teidän (f.)","suoi":"hänen (mon. m.)","sue":"hänen (mon. f.)","nostro":"meidän","nostra":"meidän (f.)","nostri":"meidän (mon.)","nostre":"meidän (mon. f.)","vostro":"teidän","vostra":"teidän (f.)","vostri":"teidän (mon.)","vostre":"teidän (mon. f.)","loro":"he / heidän",
+"questo":"tämä","questa":"tämä (f.)","questi":"nämä","queste":"nämä (f.)","quest'":"tämä (vokaalin edellä)","quello":"tuo, se","quella":"tuo, se (f.)","quelli":"nuo, ne","quelle":"nuo (f.)","quel":"tuo (+ kons.)","quei":"nuo (+ kons.)","quegli":"nuo (+ vok./s+kons.)","quell'":"tuo (vokaalin edellä)",
+"cui":"jota, jonka (relatiivi: il motivo per cui = syy miksi)","ciò":"se, tämä (ciò che = se mikä)","pure":"myös; vain (faccia pure = olkaa hyvä)","verso":"kohti; noin (ajasta)","contro":"vastaan","durante":"aikana","oltre":"yli; lisäksi","senza":"ilman","dopo":"jälkeen","prima":"ennen; ensin","fino":"asti (fino a = jhk asti)","tranne":"paitsi","presso":"luona","nessun":"ei yhtään (nessuno lyh.)","alcun":"yhtään (alcuno lyh.)","gran":"suuri (grande lyh.)","bel":"kaunis (bello lyh.)","buon":"hyvä (buono lyh.)","qualcos'":"qualcosa = jotain","perciò":"siksi","percio":"perciò = siksi","cos'":"cosa = mitä","com'":"come = miten/millainen","dov'":"dove = missä","anch'":"anche = myös","dev'":"deve = täytyy","m'":"mi = minua/minulle","t'":"ti = sinua/sinulle","s'":"si = itse","n'":"ne = siitä"};
+var IDX={},LEX={};
+function toks(t){return(String(t).toLowerCase().replace(/[’`]/g,"'").match(/[a-zà-öø-ÿ]+'?/gi)||[])}
+function buildIndex(){IDX={};ALL.forEach(function(w){toks(w.it).forEach(function(k){(IDX[k]=IDX[k]||[]).indexOf(w)<0&&IDX[k].push(w)})});
+  LEX={};notes.forEach(function(n){(n.parts||[]).forEach(function(p){var o={p:p,src:n.it};[p.w,p.lemma].forEach(function(k){if(!k)return;k=String(k).toLowerCase();(LEX[k]=LEX[k]||[]).push(o)})})})}
+buildIndex();
+function bases(w){var c=[],add=function(x){if(x&&x.length>1&&c.indexOf(x)<0&&x!==w)c.push(x)};
+  [["chi","co"],["ghi","go"],["che","ca"],["ghe","ga"],["i","o"],["i","io"],["i","e"],["e","a"],["e","i"],["a","o"],["e","o"]].forEach(function(r){if(w.slice(-r[0].length)===r[0])add(w.slice(0,-r[0].length)+r[1])});
+  ["ando","endo","avano","avamo","evano","evamo","ivano","avi","evi","ivi","erò","erai","erà","eremo","eranno","erei","eresti","erebbe","erebbero","irò","irà","irei","irebbe","asse","assi","esse","essi","isse","iamo","ate","ete","ite","ano","ono","ato","ata","ati","ate","uto","uta","uti","ito","ita","iti","avo","evo","ivo","ava","eva","iva","arsi","ersi","irsi","isco","isce","ò","ì","o","i","a","e"].forEach(function(e){
+    if(w.length>e.length&&w.slice(-e.length)===e){var st=w.slice(0,-e.length);if(/[cg]h$/.test(st)&&e.length>1){var s2=st.slice(0,-1);add(s2+"are");add(s2+"ere")}if(/[cg]$/.test(st)&&/^[oiae]$/.test(e))add(st+"iare");if(e==="isco"||e==="isce"){add(st+"ire");return}
+      if(/^(ando|ato|ata|ati|avo|ava|avano|avamo|avi|arsi|asse|assi|ò)$/.test(e))add(st+"are");else if(/^(uto|uta|uti|evo|eva|evano|evamo|evi|ersi|esse|essi)$/.test(e))add(st+"ere");else if(/^(ito|ita|iti|ivo|iva|ivano|ivi|irsi|ite|irò|irà|irei|irebbe|isse|ì)$/.test(e))add(st+"ire");else{add(st+"are");add(st+"ere");add(st+"ire")}}});
+  return c}
+var NK=null;
+function normKeys(){NK={};[IDX,FORMS,FW,LEX].forEach(function(o){Object.keys(o).forEach(function(k){var n=norm(k);if(n!==k&&!NK[n])NK[n]=k})})}
+var CL=["glielo","gliela","glieli","gliene","melo","mela","telo","sene","mene","tene","cene","lo","la","li","le","mi","ti","ci","vi","si","ne","gli"];
+function resolve(k){if(!NK)normKeys();var c=[],add=function(x){if(x&&c.indexOf(x)<0)c.push(x)};
+  add(k);if(NK[norm(k)])add(NK[norm(k)]);
+  if(/'$/.test(k)&&k.length>1){var r0=k.slice(0,-1);add(NK[norm(r0)]);add(r0);["o","a","e","i"].forEach(function(v){add(r0+v)})}
+  var IRR={sar:"essere",avr:"avere",potr:"potere",dovr:"dovere",andr:"andare",far:"fare",dar:"dare",star:"stare",vorr:"volere",verr:"venire",terr:"tenere",rimarr:"rimanere",sapr:"sapere",vedr:"vedere",vivr:"vivere",berr:"bere",dir:"dire"};
+  Object.keys(IRR).forEach(function(st){var r=k.slice(st.length);if(k.indexOf(st)===0&&/^(ò|ai|à|emo|ete|anno|ei|esti|ebbe|emmo|este|ebbero|a|o)$/.test(r))add(IRR[st])});
+  if(/r$/.test(k))add(k+"e");
+  if(/mente$/.test(k)&&k.length>7){var r1=k.slice(0,-5);if(/a$/.test(r1)){add(r1.slice(0,-1)+"o");add(r1)}else if(/[lr]$/.test(r1))add(r1+"e");else add(r1)}
+  CL.forEach(function(cl){if(k.length>cl.length+2&&k.slice(-cl.length)===cl){var r=k.slice(0,-cl.length);if(/r$/.test(r))add(r+"e");if(/rr$/.test(r))add(r.slice(0,-1)+"e");add(r);add(r+"o")}});
+  c.slice().forEach(function(x){bases(x).forEach(add)});
+  c.slice().forEach(function(x){if(/[aei]re$/.test(x))add(x.slice(0,-1)+"si")});
+  return c}
+function has(x){return FORMS[x]||FW[x]||IDX[x]||LEX[x]}
+function isKnown(k){return resolve(k).some(has)}
+function first(w){return stripArt(w.it.toLowerCase()).split(/[ (/]/)[0]}
+function hits(k){var seen={},a=(IDX[k]||[]).filter(function(w){var s=w.it+"|"+w.fi;if(seen[s])return false;if(FW[k]&&first(w)!==k&&w.it.toLowerCase()!==k)return false;return seen[s]=1});a.sort(function(x,y){var ex=first(x)===k?0:1,ey=first(y)===k?0:1;return ex-ey||x.it.length-y.it.length});return a.slice(0,5)}
+function lookHtml(k,ctxSentence){var h='<div class="look"><h4>'+esc(k)+'<button class="spk" data-say="'+esc(k)+'">🔊</button></h4>',any=false;
+  if(LEX[k]){any=true;var seen={};h+='<div class="lbl">Omista pilkonnoista</div>'+LEX[k].filter(function(o){var s=o.p.w+"|"+o.p.fi;if(seen[s])return false;return seen[s]=1}).slice(0,4).map(function(o){var p=o.p;return'<div class="hit"><b>'+esc(p.w)+'</b>'+(p.lemma&&p.lemma!==p.w?' ← '+esc(p.lemma):"")+' = '+esc(p.fi)+(p.info?'<div class="note-l">'+esc(p.info)+'</div>':"")+(p.alt?'<div class="sub">myös: '+esc(p.alt)+'</div>':"")+'</div>'}).join("")}
+  if(FORMS[k]){any=true;h+='<div class="lbl">Taivutusmuoto</div><div class="hit">'+esc(FORMS[k])+'</div>'}
+  if(FW[k]&&FW[k]!==FORMS[k]){any=true;h+='<div class="lbl">Pikkusana</div><div class="hit">'+esc(FW[k])+'</div>'}
+  var hs=hits(k).filter(function(w){return w.it!==ctxSentence});if(hs.length){any=true;h+='<div class="lbl">Sanastossa</div>'+hs.map(hitHtml).join("")}
+  if(!hs.length){var bs=resolve(k).slice(1).filter(has).slice(0,3);if(bs.length){any=true;h+='<div class="lbl">Mahdollinen perusmuoto</div>'+bs.map(function(b){
+    return'<div class="hit"><b>'+esc(b)+'</b></div>'+(FORMS[b]?'<div class="hit">'+esc(FORMS[b])+'</div>':"")+(FW[b]?'<div class="hit">'+esc(FW[b])+'</div>':"")+
+    (LEX[b]?LEX[b].slice(0,1).map(function(o){return'<div class="hit">'+esc(o.p.lemma||o.p.w)+' = '+esc(o.p.fi)+'</div>'}).join(""):"")+hits(b).slice(0,3).map(hitHtml).join("")}).join("")}}
+  if(!any)h+='<div class="step" style="margin-top:6px">Ei löydy sanastosta.</div>';
+  return h+'<button class="sec" data-addw="'+esc(k)+'">＋ Sana muistioon selvitettäväksi</button></div>'}
+function hitHtml(w){return'<div class="hit"><b>'+esc(w.it)+'</b><div class="fi">'+esc(w.fi)+'</div></div>'}
+function partsHtml(ps){if(!ps||!ps.length)return"";return'<div class="parts">'+ps.map(function(p){return'<span><b>'+esc(p.w)+'</b> '+esc(p.fi)+(p.info?' <i>('+esc(p.info)+')</i>':"")+'</span>'}).join("")+'</div>'}
+function addWordNote(w,sentence){notes.push({id:nid(),text:"italian sana '"+w+"' (lauseesta: "+String(sentence).trim()+")",fi:"",it:"",es:"",note:""});saveNotes()}
+function addSentenceNote(it,fi){it=String(it).trim();if(!notes.some(function(n){return n.kind==="lause"&&n.it===it})){notes.push({id:nid(),kind:"lause",text:fi||"",fi:fi||"",it:it,es:"",note:""});saveNotes()}}
+var SP=store.get("split",{it:"",fi:""}),SEL=-1;
+function openSplit(it,fi){SP={it:it,fi:fi||""};store.set("split",SP);SEL=-1;rendered.split=false;show("split");window.scrollTo(0,0)}
+RENDER.split=function(){var tr=("Translator" in self);
+  V.split.innerHTML='<div class="setup"><p class="step">Kirjoita suomeksi → käännä Google Kääntäjällä → kopioi italiankielinen käännös tähän. Napauta sitten sanoja.</p>'+
+   '<input class="inp" id="sfi" style="margin-top:0" placeholder="suomeksi (valinnainen)" value="'+esc(SP.fi)+'" autocomplete="off">'+
+   '<div class="rowbtn"><a class="sec" id="gt" href="#" target="_blank" rel="noopener">🌐 Avaa Google Kääntäjä</a>'+(tr?'<button class="sec" id="dev">⚡ Käännä laitteella</button>':"")+'</div>'+
+   '<textarea id="sit" rows="2" style="margin-top:10px" placeholder="Liitä italiankielinen lause tähän">'+esc(SP.it)+'</textarea>'+
+   '<button class="prim" id="sgo">✂️ Pilko</button><div class="msg" id="smsg"></div></div><div id="sres"></div>';
+  var fi=document.getElementById("sfi"),it=document.getElementById("sit"),gt=document.getElementById("gt");
+  function upd(){gt.href="https://translate.google.com/?sl=fi&tl=it&op=translate&text="+encodeURIComponent(fi.value)}
+  fi.oninput=function(){upd();SP.fi=fi.value;store.set("split",SP)};upd();
+  it.oninput=function(){SP.it=it.value;store.set("split",SP)};
+  document.getElementById("sgo").onclick=function(){SP.it=it.value;store.set("split",SP);SEL=-1;showToks()};
+  var dv=document.getElementById("dev");if(dv)dv.onclick=function(){var m=document.getElementById("smsg");m.textContent="Käännetään…";
+    try{Translator.create({sourceLanguage:"fi",targetLanguage:"it"}).then(function(t){return t.translate(fi.value)}).then(function(r){it.value=r;SP.it=r;store.set("split",SP);m.textContent="";SEL=-1;showToks()},function(e){m.textContent="⚠ Laitekäännös ei onnistunut: "+e.message})}catch(e){m.textContent="⚠ "+e.message}};
+  showToks()};
+function showToks(){var el=document.getElementById("sres"),t=toks(SP.it);if(!t.length){el.innerHTML="";return}
+  var h='<div class="toks">'+t.map(function(k,i){return'<button class="tok'+(i===SEL?" on":"")+(isKnown(k)?"":" miss")+'" data-tk="'+i+'">'+esc(k)+'</button>'}).join("")+'</div>';
+  h+='<div style="display:flex;gap:8px;align-items:center;margin-top:4px"><button class="spk" data-say="'+esc(SP.it)+'">🔊</button><span class="step" style="margin:0">Kuuntele koko lause · katkoviiva = ei löydy sanastosta</span></div>';
+  if(SEL>=0&&t[SEL])h+=lookHtml(t[SEL],SP.it);
+  h+='<div class="setup" style="margin-top:12px"><p class="step">Tarkka sana sanalta -selitys: lisää lause muistioon, niin Claude pilkkoo sen (perusmuodot, merkitykset, kielioppi). Pilkotut sanat löytyvät sen jälkeen täältä ja korteista.</p><button class="prim" id="sadd">＋ Lauseen pilkonta muistioon</button></div>';
+  el.innerHTML=h}
+V.split.addEventListener("click",function(e){var t;
+  if((t=e.target.closest("[data-say]"))){speak(t.dataset.say);return}
+  if((t=e.target.closest("[data-tk]"))){SEL=SEL===+t.dataset.tk?-1:+t.dataset.tk;showToks();var lk=V.split.querySelector(".look");if(lk)lk.scrollIntoView({block:"nearest",behavior:"smooth"});return}
+  if((t=e.target.closest("[data-addw]"))){addWordNote(t.dataset.addw,SP.it);t.textContent="✓ Lisätty muistioon";t.disabled=true;return}
+  if(e.target.id==="sadd"){addSentenceNote(SP.it,SP.fi);e.target.textContent="✓ Muistiossa – kopioi sieltä Claudelle";e.target.disabled=true}});
+
+// ---------- muistio ----------
+function saveNotes(){store.set("notes",notes);rebuild();buildIndex();NK=null;changed()}
+var PROMPT="Täydennä Ciao!-italiasanastoappini muistio. Jokaisessa kohdassa \"text\" on se, mitä haluan selvittää. Täytä: \"it\" = luonteva italiankielinen ilmaus (useampi vaihtoehto ' / '-merkillä erotettuna), \"fi\" = siisti suomenkielinen vastine, \"es\" = espanjaksi, \"note\" = lyhyt vinkki (ääntäminen, milloin käytetään, kohteliaisuus).\n"+
+ "- \"kind\":\"lause\": tarkista käännös ja täytä \"parts\" = taulukko lauseen jokaisesta sanasta järjestyksessä: {\"w\": sana kuten lauseessa, \"lemma\": perusmuoto, \"fi\": merkitys tässä lauseessa, \"info\": lyhyt kielioppitieto suomeksi (esim. 'andare, preesens minä-muoto' tai 'a + la = alla'), \"alt\": muita yleisiä merkityksiä}.\n"+
+ "- \"kind\":\"variantti\": \"text\" on muunnelma ilmauksesta \"base_it\" (\"base_fi\"). \"guess\" on oma yritykseni italiaksi – anna oikea \"it\" ja kerro \"note\"-kentässä lyhyesti mikä yrityksessä meni oikein/väärin. Täytä myös \"parts\".\n"+
+ "- Jos kohta on palautetta tai idea itse appiin eikä kielikysymys, jätä se pois vastauksesta.\n"+
+ "Säilytä \"id\", \"kind\", \"base\" ja \"text\" ennallaan. Saat lisätä muutaman hyödyllisen lähi-ilmauksen uusina kohtina (keksi uusi id). Palauta VAIN JSON-taulukko.";
+function exportText(list){return PROMPT+"\n\n"+JSON.stringify(list.map(function(n){var o={id:n.id,text:n.text||"",fi:n.fi||"",it:n.it||"",es:n.es||"",note:n.note||""};
+  if(n.kind){o.kind=n.kind;o.parts=n.parts||[]}if(n.base){o.base=n.base;o.base_it=n.base_it||"";o.base_fi=n.base_fi||"";o.guess=n.guess||""}return o}),null,1)}
+function copyOut(txt,msgEl){var box=document.getElementById("outbox");box.value=txt;box.style.display="block";
+  var done=function(ok){msgEl.textContent=ok?"✓ Kopioitu leikepöydälle – liitä Claudelle.":"Kopioi alla oleva teksti käsin (pitkä painallus → Valitse kaikki → Kopioi).";if(!ok){box.focus();box.select()}};
+  try{navigator.clipboard.writeText(txt).then(function(){done(true)},function(){done(false)})}catch(e){done(false)}}
+function importText(t){var a=t.indexOf("["),b=t.lastIndexOf("]");if(a<0||b<a)throw new Error("JSON-taulukkoa ei löytynyt");
+  var arr=JSON.parse(t.slice(a,b+1));if(!Array.isArray(arr))throw new Error("Ei taulukko");var add=0,upd=0,rem=0;
+  arr.forEach(function(x){if(!x||typeof x!=="object")return;
+    if(x.remove&&x.id){var L=notes.length;notes=notes.filter(function(n){return n.id!==x.id});rem+=L-notes.length;return}
+    var f={};["text","fi","it","es","note","kind","base","base_it","base_fi","guess"].forEach(function(k){if(x[k])f[k]=String(x[k])});
+    if(Array.isArray(x.parts)&&x.parts.length)f.parts=x.parts.filter(function(p){return p&&p.w}).map(function(p){return{w:String(p.w),lemma:String(p.lemma||""),fi:String(p.fi||""),info:String(p.info||""),alt:String(p.alt||"")}});
+    var ex=x.id&&notes.filter(function(n){return n.id===x.id})[0];
+    if(ex){var ch=0;Object.keys(f).forEach(function(k){if(JSON.stringify(ex[k])!==JSON.stringify(f[k])){ex[k]=f[k];ch=1}});if(x.done===true&&!ex.done){ex.done=true;ch=1}upd+=ch}
+    else if(f.it||f.text||f.fi){f.id=x.id||nid();if(x.done===true)f.done=true;notes.push(f);add++}});
+  saveNotes();return"✓ Päivitetty "+upd+", lisätty "+add+(rem?", poistettu "+rem:"")+"."}
+function needs(n){if(n.done)return false;if(!n.it)return true;return n.kind==="lause"&&!(n.parts&&n.parts.length)}
+var KI={lause:"✂️ ",variantti:"🔁 "};
+function noteItem(n,pend){if(S.edit===n.id)return editor(n);
+  var sub=n.kind==="variantti"?'<div class="sub">variantti: '+esc(n.base_it)+(n.guess?' · oma yritys: '+esc(n.guess):"")+'</div>':(n.it&&n.text&&n.text!==n.fi?'<div class="sub">'+esc(n.text)+'</div>':"");
+  var btns='<button class="del" data-edit="'+n.id+'" aria-label="muokkaa">✎</button><button class="del" data-del="'+n.id+'" aria-label="poista">✕</button>';
+  if(pend)return'<div class="pend"><div class="t">'+(KI[n.kind]||"")+esc(n.kind==="variantti"?(n.text||n.guess):(n.it||n.text||n.fi))+sub+'</div>'+btns+'</div>';
+  if(!n.it)return'<div class="pend donex"><div class="t">✓ '+esc(n.text||n.fi)+'</div>'+btns+'</div>';
+  return'<div class="row"><div class="t"><div class="it">'+(KI[n.kind]||"")+esc(n.it)+'</div><div class="fi">'+esc(n.fi||n.text)+'</div>'+(n.es?'<div class="es">'+esc(n.es)+'</div>':"")+(n.note?'<div class="note-l">'+esc(n.note)+'</div>':"")+partsHtml(n.parts)+'</div><button class="spk" data-say="'+esc(n.it)+'">🔊</button>'+btns+'</div>'}
+function editor(n){function f(k,l,rows){return'<label class="lbl">'+l+'</label><textarea data-ef="'+k+'" rows="'+rows+'">'+esc(n[k]||"")+'</textarea>'}
+  return'<div class="setup edit">'+f("text","Selvitettävä / muistiinpano",2)+f("it","Italiaksi",2)+f("fi","Suomeksi",1)+f("es","Espanjaksi",1)+f("note","Vinkki",1)+
+  '<div class="rowbtn"><button class="prim" data-esave="'+n.id+'">Tallenna</button>'+(needs(n)?'<button class="sec" data-edone="'+n.id+'">✓ Valmis</button>':'<button class="sec" data-eundo="'+n.id+'">↺ Selvitettäviin</button>')+'<button class="sec" data-ecancel>Peruuta</button></div></div>'}
+RENDER.notes=function(){var list=notes.slice().reverse(),pend=list.filter(needs),done=list.filter(function(n){return!needs(n)});
+  var h='<div class="setup"><p class="step">Lisää ilmaus, jonka haluat selvittää. Jos tiedät jo italiankielisen, kirjoita se toiseen kenttään.</p>'+
+    '<textarea id="nt" rows="2" placeholder="esim. miten pyydän kuitin yrityksen nimiin">'+esc(D.nt||"")+'</textarea>'+
+    '<input class="inp" id="nit" placeholder="italiaksi (valinnainen)" autocomplete="off" value="'+esc(D.nit||"")+'">'+
+    '<button class="prim" id="nadd">＋ Lisää muistioon</button></div>';
+  h+='<h3 class="cat">❓ Selvitettävät · '+pend.length+'</h3>'+(pend.length?pend.map(function(n){return noteItem(n,true)}).join(""):'<div class="empty" style="padding:14px">Ei avoimia.</div>');
+  h+='<h3 class="cat">🤖 Täydennä Claudella</h3><div class="setup">'+
+    '<p class="step">1. Kopioi selvitettävät ja liitä ne Claudelle.</p><button class="prim" id="nexp"'+(pend.length?"":" disabled")+'>Kopioi selvitettävät ('+pend.length+')</button>'+
+    '<p class="step" style="margin-top:14px">2. Liitä Clauden vastaus tähän ja paina Tuo.</p><textarea id="nin" rows="3" placeholder="Liitä JSON-vastaus tähän">'+esc(D.nin||"")+'</textarea><button class="sec" id="nimp">⤵ Tuo vastaus</button>'+
+    '<div class="msg" id="nmsg"></div><textarea id="outbox" rows="5" readonly style="display:none;margin-top:8px;font-size:12px"></textarea></div>';
+  h+='<h3 class="cat">✅ Valmiit · '+done.length+' <span style="text-transform:none;letter-spacing:0">(näkyvät myös Sanastossa ja Korteissa)</span></h3>'+
+    (done.length?done.map(function(n){return noteItem(n,false)}).join(""):'<div class="empty" style="padding:14px">Ei vielä valmiita.</div>');
+  h+='<div class="setup" style="margin-top:18px"><p class="step">Varmuuskopio: kaikki omat ilmaukset tekstinä (myös toiseen laitteeseen siirtoon – tuo samasta kentästä yllä).</p><button class="sec" id="nall">Kopioi kaikki omat ('+notes.length+')</button></div>';
+  V.notes.innerHTML=h};
+function noteById(id){return notes.filter(function(n){return n.id===id})[0]}
+V.notes.addEventListener("input",function(e){var id=e.target.id;if(id==="nt"||id==="nit"||id==="nin")draft(id,e.target.value)});
+V.notes.addEventListener("click",function(e){var t,msg=document.getElementById("nmsg");
+  if((t=e.target.closest("[data-say]"))){speak(t.dataset.say);return}
+  if(e.target.id==="nadd"){var tx=document.getElementById("nt").value.trim(),it=document.getElementById("nit").value.trim();if(!tx&&!it)return;
+    notes.push({id:nid(),text:tx,fi:it?tx:"",it:it,es:"",note:""});draft("nt","");draft("nit","");saveNotes();rerender("notes");return}
+  if(e.target.id==="nexp"){copyOut(exportText(notes.filter(needs)),msg);return}
+  if(e.target.id==="nall"){copyOut(exportText(notes),msg);return}
+  if(e.target.id==="nimp"){try{var r=importText(document.getElementById("nin").value);draft("nin","");rerender("notes");document.getElementById("nmsg").textContent=r}catch(er){msg.textContent="⚠ Tuonti epäonnistui: "+er.message}return}
+  if((t=e.target.closest("[data-edit]"))){S.edit=t.dataset.edit;rerender("notes");return}
+  if(e.target.closest("[data-ecancel]")){S.edit=null;rerender("notes");return}
+  if((t=e.target.closest("[data-esave],[data-edone],[data-eundo]"))){var n=noteById(t.dataset.esave||t.dataset.edone||t.dataset.eundo);if(!n)return;
+    t.closest(".edit").querySelectorAll("[data-ef]").forEach(function(x){n[x.dataset.ef]=x.value.trim()});
+    if(t.dataset.edone)n.done=true;if(t.dataset.eundo)n.done=false;S.edit=null;saveNotes();rerender("notes");return}
+  if((t=e.target.closest("[data-del]"))){var id=t.dataset.del;if(t.dataset.arm){notes=notes.filter(function(n){return n.id!==id});saveNotes();rerender("notes")}else{t.dataset.arm=1;t.textContent="Poista?";t.style.color="var(--r)";t.style.fontSize="13px"}}});
+
+// ---------- opas ----------
+RENDER.guide=function(){V.guide.innerHTML='<div class="guide">'+GUIDE+'<div class="note">🔊 Ääntäminen käyttää puhelimen omaa puhesynteesiä. Offline-käyttöön italian ääni pitää olla ladattuna (Android: Asetukset → Tekstistä puheeksi → Google → Asenna äänidata → italia; iPhone: Asetukset → Käyttöapu → Puhuttu sisältö → Äänet → italia).<br><br>Edistyminen, tähdet ja muistio tallentuvat tähän laitteeseen/selaimeen.<br><br><button class="small" id="reset">Nollaa korttien edistyminen</button></div></div>'};
+V.guide.addEventListener("click",function(e){if(e.target.id!=="reset")return;if(e.target.dataset.arm){known={};store.set("known",known);S.tot=0;S.deck=[];rendered.cards=false;e.target.textContent="Nollattu ✓"}else{e.target.dataset.arm=1;e.target.textContent="Paina uudelleen vahvistaaksesi"}});
+
+// ---------- init ----------
+["words","search"].forEach(function(v){V[v].addEventListener("click",listClick(v));V[v].addEventListener("input",listInput)});
+document.querySelector("nav").onclick=function(e){var b=e.target.closest("button");if(b)show(b.dataset.v)};
+show("words");try{window.__ciao={isKnown:isKnown,resolve:resolve}}catch(e){}
+if("serviceWorker" in navigator&&location.protocol==="https:"){try{navigator.serviceWorker.register("sw.js").catch(function(){})}catch(e){}}
+})();
+</script>
+</body>
+</html>
